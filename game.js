@@ -4,6 +4,7 @@
 
 const suits = ["♠", "♥", "♦", "♣"];
 const ranks = ["A", "J", "Q", "K"];
+const jokerRanks = ["A", "J", "Q", "K", "10"];
 
 let deck = [];
 
@@ -176,8 +177,167 @@ function exchangeCards() {
     selectedCards = [];
 
     displayHands();
+
+    // 役判定
+    const result = evaluateHand(playerHand);
+    console.log("あなたの役:", result);
 }
 
+// ==============================
+// 役判定
+// ==============================
+function evaluateHand(hand) {
+
+    // JOKERがあるか確認
+    const jokerIndex = hand.findIndex(
+        card => card.rank === "JOKER"
+    );
+
+    // JOKERがなければ普通に判定
+    if (jokerIndex === -1) {
+        return evaluateNormalHand(hand);
+    }
+
+    let bestResult = {
+        rank: -1,
+        name: ""
+    };
+
+    // JOKERを各カードとして仮定する
+    for (const suit of suits) {
+
+        for (const rank of jokerRanks) {
+
+            // 手札をコピー
+            const testHand = hand.map(card => ({ ...card }));
+
+            // JOKERを仮のカードに置き換える
+            testHand[jokerIndex] = {
+                rank: rank,
+                suit: suit
+            };
+
+            const result = evaluateNormalHand(testHand);
+
+            // 今までより強い役なら更新
+            if (result.rank > bestResult.rank) {
+                bestResult = result;
+            }
+        }
+    }
+
+    return bestResult;
+}
+
+function evaluateNormalHand(hand) {
+
+    const rankCount = {};
+
+     // ① 先にランクを数える
+    for (const card of hand) {
+
+        if (card.rank === "JOKER") {
+            continue;
+        }
+
+        if (rankCount[card.rank] === undefined) {
+            rankCount[card.rank] = 0;
+        }
+
+        rankCount[card.rank]++;
+    }
+
+
+    // ② 数え終わってからストレート判定
+    const isStraight =
+        rankCount["10"] === 1 &&
+        rankCount["J"] === 1 &&
+        rankCount["Q"] === 1 &&
+        rankCount["K"] === 1 &&
+        rankCount["A"] === 1;
+
+
+    // ③ 全カードが同じスートか
+    const isSameSuit = hand.every(
+        card => card.suit === hand[0].suit
+    );
+
+
+    // ④ 同じランクの枚数
+    const counts = Object.values(rankCount);
+    counts.sort((a, b) => b - a);
+
+
+    // ファイブカード
+    if (counts[0] === 5) {
+        return {
+            rank: 8,
+            name: "ファイブカード"
+        };
+    }
+
+    // ロイヤルストレートフラッシュ
+    if (isStraight && isSameSuit) {
+        return {
+            rank: 7,
+            name: "ロイヤルストレートフラッシュ"
+        };
+    }
+
+
+    // フォーカード
+    if (counts[0] === 4) {
+        return {
+            rank: 6,
+            name: "フォーカード"
+        };
+    }
+
+    // フルハウス
+    if (counts[0] === 3 && counts[1] === 2) {
+        return {
+            rank: 5,
+            name: "フルハウス"
+        };
+    }
+
+    // ストレート
+    if (isStraight) {
+        return {
+            rank: 4,
+            name: "ストレート"
+        };
+    }
+
+    // スリーカード
+    if (counts[0] === 3) {
+        return {
+            rank: 3,
+            name: "スリーカード"
+        };
+    }
+
+    // ツーペア
+    if (counts[0] === 2 && counts[1] === 2) {
+        return {
+            rank: 2,
+            name: "ツーペア"
+        };
+    }
+
+    // ワンペア
+    if (counts[0] === 2) {
+        return {
+            rank: 1,
+            name: "ワンペア"
+        };
+    }
+
+    return {
+        rank: 0,
+        name: "役なし"
+    };
+}
 
 // ==============================
 // ボタン
