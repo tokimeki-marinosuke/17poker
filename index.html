@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>17 Poker</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>17 Poker</h1>
+    </header>
+
+    <main>
+        <!-- CPU側 -->
+        <section id="cpu-area">
+            <h2>CPU</h2>
+
+            <div id="cpu-hand">
+                <!-- JavaScriptでカードを表示する -->
+            </div>
+        </section>
+
+        <!-- 場 -->
+        <section id="table-area">
+            <p>GAME <span id="game-number">1</span> / 10</p>
+            <p>POT：<span id="pot">0</span></p>
+
+            <button id="start-button">ゲーム開始</button>
+        </section>
+
+        <!-- プレイヤー側 -->
+        <section id="player-area">
+            <h2>YOU</h2>
+
+            <div id="player-hand">
+                <!-- JavaScriptでカードを表示する -->
+            </div>
+
+            <p>CHIP：<span id="player-chip">100</span></p>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="game.js"></script>
+
+</body>
+
+</html>
